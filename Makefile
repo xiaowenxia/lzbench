@@ -61,7 +61,7 @@ else
 		DONT_BUILD_CSC ?= 1
 	endif
 
-	LDFLAGS	+= -pthread -lrt
+	LDFLAGS	+= -pthread -lrt -lz
 
 	ifeq ($(BUILD_STATIC),1)
 		LDFLAGS	+= -lrt -static
@@ -106,9 +106,9 @@ UCL_FILES = ucl/alloc.o ucl/n2b_99.o ucl/n2b_d.o ucl/n2b_ds.o ucl/n2b_to.o ucl/n
 UCL_FILES += ucl/n2d_to.o ucl/n2e_99.o ucl/n2e_d.o ucl/n2e_ds.o ucl/n2e_to.o ucl/ucl_crc.o ucl/ucl_init.o
 UCL_FILES += ucl/ucl_ptr.o ucl/ucl_str.o ucl/ucl_util.o
 
-ZLIB_FILES = zlib/adler32.o zlib/compress.o zlib/crc32.o zlib/deflate.o zlib/gzclose.o zlib/gzlib.o zlib/gzread.o
-ZLIB_FILES += zlib/gzwrite.o zlib/infback.o zlib/inffast.o zlib/inflate.o zlib/inftrees.o zlib/trees.o
-ZLIB_FILES += zlib/uncompr.o zlib/zutil.o
+# ZLIB_FILES = zlib/adler32.o zlib/compress.o zlib/crc32.o zlib/deflate.o zlib/gzclose.o zlib/gzlib.o zlib/gzread.o
+# ZLIB_FILES += zlib/gzwrite.o zlib/infback.o zlib/inffast.o zlib/inflate.o zlib/inftrees.o zlib/trees.o
+# ZLIB_FILES += zlib/uncompr.o zlib/zutil.o
 
 LZMAT_FILES = lzmat/lzmat_dec.o lzmat/lzmat_enc.o
 
