@@ -1814,7 +1814,7 @@ int64_t lzbench_cuda_return_0(char *inbuf, size_t insize, char *outbuf, size_t o
   do {                                                                         \
     cudaError_t err = cond;                                                    \
     if (err != cudaSuccess) {                                                  \
-      printf("cuda failed\n");                                                 \
+      printf("cuda failed %s,%d \n", __FILE__, __LINE__);                \
       exit(1);                                                                 \
     }                                                                          \
   } while (false)
@@ -1823,7 +1823,7 @@ int64_t lzbench_cuda_return_0(char *inbuf, size_t insize, char *outbuf, size_t o
   do {                                                                         \
     nvcompStatus_t status = cond;                                                    \
     if (status != nvcompSuccess) {                                                  \
-      printf("nvcomp failed\n");                                                 \
+      printf("nvcomp failed %s,%d \n", __FILE__, __LINE__);                \
       exit(1);                                                                 \
     }                                                                          \
   } while (false)
