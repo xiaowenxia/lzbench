@@ -137,3 +137,40 @@ zlib 1.2.11 -5            102 MB/s  1049 MB/s    69106398  32.60 ./silesia.tar
 zlib 1.2.11 -6           76.4 MB/s  1059 MB/s    68564217  32.35 ./silesia.tar
 done... (cIters=1 dIters=1 cTime=16.0 dTime=16.0 chunkSize=1706MB cSpeed=0MB)
 ```
+
+
+nvcomp_deflate
+```
+[root@xxwGPU lzbench]#  ./lzbench -envcomp_deflate/zlib -t16,16 /disk1/silesia.tar
+lzbench 1.8 (64-bit Linux)  Intel(R) Xeon(R) Platinum 8163 CPU @ 2.50GHz
+Assembled by P.Skibinski
+
+Compressor name         Compress. Decompress. Compr. size  Ratio Filename
+memcpy                   6000 MB/s  5945 MB/s   211957760 100.00 /disk1/silesia.tar
+nvcomp_deflate 2.3 -0     883 MB/s      ERROR    88711038  41.85 /disk1/silesia.tar
+nvcomp_deflate 2.3 -1    71.9 MB/s      ERROR    69638189  32.85 /disk1/silesia.tar
+zlib 1.2.11 -1           73.2 MB/s   233 MB/s    77257276  36.45 /disk1/silesia.tar
+zlib 1.2.11 -2           64.8 MB/s   240 MB/s    75000804  35.38 /disk1/silesia.tar
+zlib 1.2.11 -3           48.7 MB/s   248 MB/s    72970496  34.43 /disk1/silesia.tar
+zlib 1.2.11 -4           45.8 MB/s   242 MB/s    70998310  33.50 /disk1/silesia.tar
+zlib 1.2.11 -5           31.3 MB/s   244 MB/s    69158092  32.63 /disk1/silesia.tar
+zlib 1.2.11 -6           20.9 MB/s   249 MB/s    68225177  32.19 /disk1/silesia.tar
+done... (cIters=1 dIters=1 cTime=16.0 dTime=16.0 chunkSize=1706MB cSpeed=0MB)
+```
+
+```
+[root@xxwGPU lzbench]#  ./lzbench -envcomp_lz4/lz4 -t16,16 /disk1/silesia.tar
+lzbench 1.8 (64-bit Linux)  Intel(R) Xeon(R) Platinum 8163 CPU @ 2.50GHz
+Assembled by P.Skibinski
+
+Compressor name         Compress. Decompress. Compr. size  Ratio Filename
+memcpy                   6038 MB/s  6000 MB/s   211957760 100.00 /disk1/silesia.tar
+nvcomp_lz4 1.2.2 -0      1188 MB/s      ERROR   110662127  52.21 /disk1/silesia.tar
+nvcomp_lz4 1.2.2 -1      1089 MB/s      ERROR   107532249  50.73 /disk1/silesia.tar
+nvcomp_lz4 1.2.2 -2       999 MB/s      ERROR   106588123  50.29 /disk1/silesia.tar
+nvcomp_lz4 1.2.2 -3       944 MB/s      ERROR   106008710  50.01 /disk1/silesia.tar
+nvcomp_lz4 1.2.2 -4       822 MB/s      ERROR   105707886  49.87 /disk1/silesia.tar
+nvcomp_lz4 1.2.2 -5       568 MB/s      ERROR   105549308  49.80 /disk1/silesia.tar
+lz4 1.9.3                 106 MB/s   755 MB/s   100881382  47.60 /disk1/silesia.tar
+done... (cIters=1 dIters=1 cTime=16.0 dTime=16.0 chunkSize=1706MB cSpeed=0MB)
+```

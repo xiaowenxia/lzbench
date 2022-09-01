@@ -1809,6 +1809,7 @@ int64_t lzbench_cuda_return_0(char *inbuf, size_t insize, char *outbuf, size_t o
 
 #ifdef BENCH_HAS_NVCOMP
 #include "nvcomp/lz4.h"
+#include "nvcomp/deflate.h"
 
 #define CUDA_CHECK(cond)                                                       \
   do {                                                                         \
@@ -1836,7 +1837,7 @@ typedef struct {
 //   char* buffer_d;
 //   char* compressed_d;
   nvcompBatchedLZ4Opts_t opts;
-//   struct nvcompBatchedDeflateOpts_t deflate_opts;
+  nvcompBatchedDeflateOpts_t deflate_opts;
   size_t chunk_size;
   size_t batch_size;
 
@@ -1867,8 +1868,7 @@ char* lzbench_nvcomp_init(size_t insize, size_t level, size_t)
   if (!nvcomp_params) return NULL;
 
   // set the chunk size based on the compression level
-  // nvcomp_params->chunk_size = 1 << (15 + level);
-  nvcomp_params->chunk_size = 65536;
+  nvcomp_params->chunk_size = 1 << (15 + level);
   nvcomp_params->batch_size = (insize + nvcomp_params->chunk_size - 1) / nvcomp_params->chunk_size;
   nvcomp_params->opts = nvcompBatchedLZ4DefaultOpts;
 
@@ -1888,9 +1888,9 @@ char* lzbench_nvcomp_init(size_t insize, size_t level, size_t)
   // note that the data type and the data to be compressed are not actually used
 //   status = nvcompLZ4CompressGetTempSize(nvcomp_params->uncompressed_d, insize, NVCOMP_TYPE_CHAR, &nvcomp_params->opts, &nvcomp_params->buffer_size);
   NVCOMP_CHECK(nvcompBatchedLZ4CompressGetTempSize(nvcomp_params->batch_size, nvcomp_params->chunk_size, nvcomp_params->opts, &nvcomp_params->temp_bytes));
-  printf("batch_size:%d\n", nvcomp_params->batch_size);
-  printf("temp_bytes:%d\n", nvcomp_params->temp_bytes);
-  printf("insize:%d\n", insize);
+//   printf("batch_size:%d\n", nvcomp_params->batch_size);
+//   printf("temp_bytes:%d\n", nvcomp_params->temp_bytes);
+//   printf("insize:%d\n", insize);
 
   // allocate device memory for the temporary buffer
   CUDA_CHECK(cudaMalloc(&nvcomp_params->device_temp_ptr, nvcomp_params->temp_bytes));
@@ -1935,7 +1935,7 @@ int64_t lzbench_nvcomp_compress(char *inbuf, size_t insize, char *outbuf, size_t
 {
   nvcomp_params_s* nvcomp_params = (nvcomp_params_s*) params;
 
-  printf("insize:%d\n", insize);
+//   printf("insize:%d\n", insize);
   for (size_t i = 0; i < nvcomp_params->batch_size; ++i) {
     if (i + 1 < nvcomp_params->batch_size) {
       nvcomp_params->host_uncompressed_bytes[i] = nvcomp_params->chunk_size;
@@ -1996,7 +1996,6 @@ int64_t lzbench_nvcomp_decompress(char *inbuf, size_t insize, char *outbuf, size
 
 
 
- #include "nvcomp/deflate.h"
 
 
 // allocate the host and device memory buffers for the nvcom LZ4 compression and decompression
@@ -2007,11 +2006,9 @@ char* lzbench_nvcomp_deflate_init(size_t insize, size_t level, size_t)
   nvcomp_params_s* nvcomp_params = (nvcomp_params_s*) malloc(sizeof(nvcomp_params_s));
   if (!nvcomp_params) return NULL;
 
-  // set the chunk size based on the compression level
-  // nvcomp_params->chunk_size = 1 << (15 + level);
   nvcomp_params->chunk_size = 65536;
   nvcomp_params->batch_size = (insize + nvcomp_params->chunk_size - 1) / nvcomp_params->chunk_size;
-  nvcomp_params->opts = nvcompBatchedLZ4DefaultOpts;
+  nvcomp_params->deflate_opts.algo = level;
 
   // create a CUDA stream to run the compression/decompression
   CUDA_CHECK(cudaStreamCreate(&nvcomp_params->stream));
@@ -2027,17 +2024,17 @@ char* lzbench_nvcomp_deflate_init(size_t insize, size_t level, size_t)
 
   // determine the size of the temporary buffer
   // note that the data type and the data to be compressed are not actually used
-  NVCOMP_CHECK(nvcompBatchedDeflateCompressGetTempSize(nvcomp_params->batch_size, nvcomp_params->chunk_size, nvcompBatchedDeflateDefaultOpts, &nvcomp_params->temp_bytes));
-  printf("batch_size:%d\n", nvcomp_params->batch_size);
-  printf("temp_bytes:%d\n", nvcomp_params->temp_bytes);
-  printf("insize:%d\n", insize);
+  NVCOMP_CHECK(nvcompBatchedDeflateCompressGetTempSize(nvcomp_params->batch_size, nvcomp_params->chunk_size, nvcomp_params->deflate_opts, &nvcomp_params->temp_bytes));
+//   printf("batch_size:%d\n", nvcomp_params->batch_size);
+//   printf("temp_bytes:%d\n", nvcomp_params->temp_bytes);
+//   printf("insize:%d\n", insize);
 
   // allocate device memory for the temporary buffer
   CUDA_CHECK(cudaMalloc(&nvcomp_params->device_temp_ptr, nvcomp_params->temp_bytes));
 
   // determine the size of the output buffer
   // note that the data type and the data to be compressed are not actually used
-  NVCOMP_CHECK(nvcompBatchedDeflateCompressGetMaxOutputChunkSize(nvcomp_params->chunk_size, nvcompBatchedDeflateDefaultOpts, &nvcomp_params->max_out_bytes));
+  NVCOMP_CHECK(nvcompBatchedDeflateCompressGetMaxOutputChunkSize(nvcomp_params->chunk_size, nvcomp_params->deflate_opts, &nvcomp_params->max_out_bytes));
 
   CUDA_CHECK(cudaMallocHost(&nvcomp_params->host_compressed_ptrs, sizeof(size_t) * nvcomp_params->batch_size));
   for(size_t ix_chunk = 0; ix_chunk < nvcomp_params->batch_size; ++ix_chunk) {
@@ -2108,7 +2105,7 @@ int64_t lzbench_nvcomp_deflate_compress(char *inbuf, size_t insize, char *outbuf
       nvcomp_params->temp_bytes,
       nvcomp_params->device_compressed_ptrs,
       nvcomp_params->device_compressed_bytes,
-      nvcompBatchedDeflateDefaultOpts,
+      nvcomp_params->deflate_opts,
       nvcomp_params->stream));
 
   // ensure that all operations and copies are complete, and that nvcomp_params->compressed_size is available
