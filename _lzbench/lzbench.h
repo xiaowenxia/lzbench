@@ -137,7 +137,7 @@ typedef struct
 
 
 
-#define LZBENCH_COMPRESSOR_COUNT 73
+#define LZBENCH_COMPRESSOR_COUNT 74
 
 static const compressor_desc_t comp_desc[LZBENCH_COMPRESSOR_COUNT] =
 {
@@ -214,6 +214,7 @@ static const compressor_desc_t comp_desc[LZBENCH_COMPRESSOR_COUNT] =
     { "nakamichi",  "okamigan",    0,   0,    0,       0, lzbench_nakamichi_compress,  lzbench_nakamichi_decompress,  NULL,                    NULL },
     { "cudaMemcpy", "",            0,   0,    0,       0, lzbench_cuda_return_0,       lzbench_cuda_memcpy,           lzbench_cuda_init,       lzbench_cuda_deinit },
     { "nvcomp_lz4", "1.2.2",       0,   5,    0,       0, lzbench_nvcomp_compress,     lzbench_nvcomp_decompress,     lzbench_nvcomp_init,     lzbench_nvcomp_deinit },
+    { "nvcomp_deflate", "2.3",       0,   0,    0,       0, lzbench_nvcomp_deflate_compress,     lzbench_nvcomp_deflate_decompress,     lzbench_nvcomp_deflate_init,     lzbench_nvcomp_deflate_deinit },
 };
 
 
