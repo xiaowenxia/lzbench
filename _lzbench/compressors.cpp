@@ -1905,6 +1905,7 @@ char* lzbench_nvcomp_init(size_t insize, size_t level, size_t)
   CUDA_CHECK(cudaMalloc(&nvcomp_params->device_compressed_ptrs, sizeof(size_t) * nvcomp_params->batch_size));
   CUDA_CHECK(cudaMalloc(&nvcomp_params->device_compressed_bytes, sizeof(size_t) * nvcomp_params->batch_size));
 
+  CUDA_CHECK(cudaMallocHost(&nvcomp_params->compressed_size, sizeof(size_t)));
   return (char*) nvcomp_params;
 }
 
